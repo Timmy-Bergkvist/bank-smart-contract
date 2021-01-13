@@ -1,6 +1,16 @@
 pragma solidity 0.7.5;
 
-contract Bank { 
+import "./Ownable.sol";
+import "./Destructible.sol";
+
+interface GovernmentInterFace {
+    function addTransaction(address _from, address _to, uint _amount) external payable;
+    
+}
+
+contract Bank is Ownable, Destroyable { 
+    
+    GovernmentInterFace governmentInstance = GovernmentInterFace(0xd9145CCE52D386f254917e481eB44e9943F39138);
     
     mapping(address => uint) balance;
     
@@ -11,7 +21,6 @@ contract Bank {
     }
     
     function withdraw(uint amount) public returns (uint){
-        // get the balance from sender
         require(balance[msg.sender] >= amount);
         balance[msg.sender] -= amount;
         msg.sender.transfer(amount);
@@ -31,7 +40,7 @@ contract Bank {
         
         _transfer(msg.sender, recipient, amount);
         
-        governmentInstance.addTransaction{value: 1 ether}(msg.sender, recipient, amount);
+        governmentInstance.addTransaction(msg.sender, recipient, amount);
         
         assert(balance[msg.sender] == previousSenderBalance - amount); //checks the code 
     }
@@ -42,5 +51,4 @@ contract Bank {
         balance[to] += amount; // increase balance
         
     }
-
 }
